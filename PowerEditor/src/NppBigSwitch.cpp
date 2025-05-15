@@ -1260,7 +1260,17 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 				short zDelta = (short) HIWORD(wParam);
 				return ::SendMessage(hwnd, WM_COMMAND, zDelta>0?IDC_PREV_DOC:IDC_NEXT_DOC, 0);
 			}
-			return TRUE;
+			else
+			{
+				// transfer the message to the tab view to allow tab scrolling
+				DocTabView* targetTabView = &_mainDocTab;	// default
+				HWND hwndFrom = reinterpret_cast<HWND>(lParam);
+				if (_subEditView.getHSelf() == hwndFrom || _subDocTab.getHSelf() == hwndFrom)
+				{
+					targetTabView = &_subDocTab;
+				}
+				return ::SendMessage(targetTabView->getHSelf(), WM_MOUSEWHEEL, wParam, lParam);
+			}
 		}
 
 		case WM_APPCOMMAND:

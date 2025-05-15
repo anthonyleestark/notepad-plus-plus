@@ -320,6 +320,23 @@ LRESULT SplitterContainer::runProc(UINT message, WPARAM wParam, LPARAM lParam)
 			return TRUE;
 		}
 
+		case WM_MOUSEWHEEL:
+		{
+			POINT pt;
+			::GetCursorPos(&pt);
+			::ScreenToClient(_splitter.getHSelf(), &pt);
+
+			Window* targetWindow = (isVertical())
+				? (pt.x < 0 ? _pWin0 : _pWin1)
+				: (pt.y < 0 ? _pWin0 : _pWin1);
+
+			// transfer the message to the parent
+			HWND parent = ::GetParent(getHSelf());
+			::SendMessage(parent, WM_MOUSEWHEEL, wParam, reinterpret_cast<LPARAM>(targetWindow->getHSelf()));
+
+			return TRUE;
+		}
+
 		default:
 			return ::DefWindowProc(_hSelf, message, wParam, lParam);
 	}
